@@ -1,0 +1,15 @@
+VPN Outage Incident
+
+Day 1: Had difficulty creating the Remote Access process due to Windows Firewall Defender. Disabled and received EventID 20153 in Event Viewer. 
+Had to configure NPS first.
+In the server manager -> Network Policy Server, -> RADIUS Clients and Servers -> RADIUS Clients
+- Friendly Name: RRAS-VPN
+- Address: 127.0.0.1 (to loop back into itself)
+- Shared secret: AaronLabSecret123!
+
+The shared secret allows a VPN client to connect, RRAS receives the connection request and forwards it to NPS asking if user is authentic? NPS needs to verify request with the same secret to confirm trust. 
+Both sides have to have the exact same string or NPS rejects the request entirely. This is what will be "broken" in the project. 
+Nothing was working, removed RemoteAccess through Server Manager and readded RemoteAccess to completion. All should be working again after starting from scratch.
+Was able to connect the AD-Client VM through the help.desk user and set up VPN.
+In the Server VM, applied Static IP Address pools from 192.168.100.200 to 192.168.100.210
+Client VM via help.desk user was able to successfully connect. 
