@@ -1,0 +1,34 @@
+Phase 3
+
+1. Create the Incident Ticket in osTicket
+- Created Ticket #853743 by Help Desk User
+2. Engineer the Failure
+- Went into NPS
+- Inside RADIUS Clients, clicked on RRAS-VPN
+- Edited Shared secret field to engineer the failure
+COMPLICATION NOTE: Discovered that on Windows Server 2022 with RRAS and NPS co-located on the same machines, the shared secret isn't validated over the network the same way it would be if they were on seperate servers.
+They communicate internally, bypassing the shared secret check entirely. A new method to engineer failure is needed for this setup.
+3. NEW FAILURE: Disable the NPS Network Policy
+- This is to emulate another common real-world scenario. Someone accidentally disables or misconfigures an NPS policy during maintenance, and VPN authentication starts failing for everyone.
+COMPLICATION NOTE: Client VM was still able to connect despite Disabling VPN Policy in NPS. Windows Server 2022 appears to fall back to local Windows authentication internally, bypassing NPS entirely. 
+4. NEW FAILURE: Stop NPS service entirely
+- Another realistic incident scenario: NPS service crashes or accidentally stopped during maintenance.
+- Opened Services. Looked for Network Policy Server > Right-click Stop
+COMPLICATION NOTE: Client VM still connected to AaronLab VPN despite manually stopping NPS. Windows handles auth internally no matter what I do to NPS. Fighting the architechture isn't a battle worth fighting.
+5. NEW FAILURE: re-enabling Windows Firewall to block PPTP port
+COMPLICATION NOTE: Client VM was still connected to VPN. Because this doesn't closely emulate an enterprise where each server is seperate and inside this lab, all services are hosted on the same machine, engineering the break is becoming difficult.
+A new approach is needed. Reworking project to have another common VPN issue in order to keep lab structure.
+There is no need to grasp at straws and engineer a break for the sake of the project to continue.  This project is meant to emulate common enterprise incidents that can be solved. A new failure will be created.
+- Reverted decisions to disable Windows Firewall, Re-start NPS in Services, Enable VPN connections inside NPS
+6. NEW FAILURE: User account locked out
+- Remote employee tries VPN repeatedly with wrong password, AD account gets locked out, VPN silently rejects them. User thinks VPN is broken. 
+- Created new user: Alie Layus (alayus) in AD
+- In Client VM, logged in as alayus
+- Set up VPN
+- Confirmed username and password: Successful connection
+- Disconnected VPN
+- Attempted to log in to VPN with wrong password (intentionaly for lockout)
+- VPN locked alayus out after 3 attempts with message: "connection was closed by the remote computer"
+- Attempted to log in to VPN with correct password (to verify VPN will still lock out user)
+- VPN still locked out alayus after 3 attempts with same message
+- Created osTicket #676210 for user alayus
